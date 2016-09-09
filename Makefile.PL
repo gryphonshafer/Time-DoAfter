@@ -2,28 +2,23 @@
 use strict;
 use warnings;
 
-use 5.006;
+use 5.010;
 
 use ExtUtils::MakeMaker;
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "Cascading merged application configuration",
+  "ABSTRACT" => "Wait before doing by label contoller singleton",
   "AUTHOR" => "Gryphon Shafer <gryphon\@cpan.org>",
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => 0
   },
-  "DISTNAME" => "Config-App",
+  "DISTNAME" => "Time-DoAfter",
   "LICENSE" => "perl",
-  "MIN_PERL_VERSION" => "5.006",
-  "NAME" => "Config::App",
+  "MIN_PERL_VERSION" => "5.010",
+  "NAME" => "Time::DoAfter",
   "PREREQ_PM" => {
     "Carp" => 0,
-    "FindBin" => 0,
-    "JSON::XS" => 0,
-    "LWP::UserAgent" => 0,
-    "POSIX" => 0,
-    "URI" => 0,
-    "YAML::XS" => 0,
+    "Time::HiRes" => 0,
     "strict" => 0,
     "warnings" => 0
   },
@@ -36,7 +31,7 @@ my %WriteMakefileArgs = (
     "blib" => "1.01",
     "constant" => 0
   },
-  "VERSION" => "1.04",
+  "VERSION" => "1.01",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -46,16 +41,11 @@ my %WriteMakefileArgs = (
 my %FallbackPrereqs = (
   "Carp" => 0,
   "File::Spec" => 0,
-  "FindBin" => 0,
   "IO::Handle" => 0,
   "IPC::Open3" => 0,
-  "JSON::XS" => 0,
-  "LWP::UserAgent" => 0,
-  "POSIX" => 0,
   "Test::More" => 0,
   "Test::Most" => 0,
-  "URI" => 0,
-  "YAML::XS" => 0,
+  "Time::HiRes" => 0,
   "blib" => "1.01",
   "constant" => 0,
   "strict" => 0,

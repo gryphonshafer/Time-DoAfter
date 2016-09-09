@@ -1,301 +1,167 @@
 # NAME
 
-Config::App - Cascading merged application configuration
+Time::DoAfter - Wait before doing by label contoller singleton
 
 # VERSION
 
-version 1.04
+version 1.01
 
-[![Build Status](https://travis-ci.org/gryphonshafer/Config-App.svg)](https://travis-ci.org/gryphonshafer/Config-App)
-[![Coverage Status](https://coveralls.io/repos/gryphonshafer/Config-App/badge.png)](https://coveralls.io/r/gryphonshafer/Config-App)
+[![Build Status](https://travis-ci.org/gryphonshafer/Time-DoAfter.svg)](https://travis-ci.org/gryphonshafer/Time-DoAfter)
+[![Coverage Status](https://coveralls.io/repos/gryphonshafer/Time-DoAfter/badge.png)](https://coveralls.io/r/gryphonshafer/Time-DoAfter)
 
 # SYNOPSIS
 
-    use Config::App;
-    use Config::App 'lib';
-    use Config::App ();
+    use Time::DoAfter;
 
-    # looks for initial conf file "config/app.yaml" at or above cwd
-    my $conf = Config::App->new;
+    my $tda0 = Time::DoAfter->new;
+    my $tda1 = Time::DoAfter->new( 'label', [ 0.9, 2.3 ], sub {} );
+    my $tda2 = Time::DoAfter->new(
+        'label_a', 0.5, sub {},
+        'label_b', 0.7, sub {},
+    );
 
-    # looks for initial conf file "conf/settings.yaml" at or above cwd
-    $ENV{CONFIGAPPINIT} = 'conf/settings.yaml';
-    my $conf2 = Config::App->new;
+    $tda1->do;
+    $tda2->do('label_b');
+    $tda0->do( sub {} );
+    $tda0->do( sub {}, 0.5 );
+    $tda0->do( 'label', sub {} );
+    $tda0->do( 'label', sub {}, 0.5 );
 
-    # looks for initial conf file "settings/conf.yaml" at or above cwd
-    my $conf3 = Config::App->new('settings/conf.yaml');
+    my ( $time_since, $time_wait ) = $tda1->do( sub {} );
 
-    # pulls initial conf file from URL
-    my $conf4 = Config::App->new('https://example.com/config/app.yaml');
+    my $current_time = $tda0->now;
+    my $last_time    = $tda0->last('label');
 
-    # optional enviornment variable that can alter how cascading works
-    $ENV{CONFIGAPPENV} = 'production';
-
-    my $username = $conf->get( qw( database primary username ) );
-    $conf->put( qw( database primary username new_username_value ) );
-
-    my $full_conf_as_data_structure = $conf->conf;
-
-    my $new_full_conf_as_data_structure = $conf->conf({
-        change => { some => { conf => 1138 } }
-    });
+    my $all_history   = $tda0->history;
+    my $label_history = $tda0->history('label');
+    my $last_5_label  = $tda0->history( 'label', 5 );
 
 # DESCRIPTION
 
-The intent of this module is to provide an all-purpose enviornment setup helper
-and configuration fetcher that allows configuration files to include other files
-and "cascade" or merge bits of these files into the "active" configuration
-based on server name, user account name the process is running under, and/or
-enviornment variable flag. The goal being that a single unified configuration
-can be built from a set of files (real files or URLs) and slices of that
-configuration can be automatically used as the active configuration in any
-enviornment. Thus, you can write configuration files once and never need to
-change them based on the location to which the application is being deployed.
+This library provides a means to do something after waiting a specified period
+of time since the previous invocation under the same something label. Also,
+it's a singleton.
 
-You can write configuration files in YAML or JSON. These files can be local
-or served through some sort of URL.
+Let's say you have a situation where you want to do something every 2 seconds,
+but that thing you want to do might take anywhere between 0.5 and 1.5 seconds
+to accomplish. Basically, you want to wait for a period of time since the last
+invocation such that the next invocation is 2 seconds after the previous.
 
-## Cascading Configurations
+    my $tda = Time::DoAfter->new(2);
 
-A configuration file can include a "default" section and any number of override
-sections. Each overrides section begins with a pipe-delimited selector in the
-form of: server name, user name (running the process), and value of the
-CONFIGAPPENV enviornment variable. A "+" character means any and all values,
-as does a missing value.
+    $tda->do( sub {} ); # pretend this first action takes 0.5 seconds to complete
+    $tda->do( sub {} ); # this second action will wait 1.5 seconds before starting
 
-As a concrete example, assume the following YAML configuration file:
+Alternatively, let's say you're web scraping and you want to keep the requests
+to a specific host separated by a random amount of time between 0.5 and 1.5
+seconds.
 
-    default:
-        database:
-            username: prime
-            password: insecure
-    alderaan:
-        database:
-            username: primary
-    titanic|gryphon:
-        database:
-            username: gryphon
-    +|gryphon:
-        database:
-            password: gryphon
-    +|gryphon|other:
-        database:
-            password: other
+    my $tda = Time::DoAfter->new( [ 0.5, 1.5 ] );
+    $tda->do( sub { scrape_a_new_web_page($_) } ) for (@pages);
 
-In this fairly silly and simple example, the "default" settings are at the top
-and define a database username and password. Below that are overrides to the
-default. On the server with a hostname of "alderaan", the database username is
-"primary"; however, the password remains "insecure" (since it was defined
-in the "default" section and left unchanged).
+## Multiple Concurrent Labels
 
-The "+|gryphon" selector means any hostname where the process is running under
-the "gryphon" user account. The "+|gryphon|other" means the same but only if
-CONFIGAPPENV enviornment variable is set to "other".
+Conceptually, the library has the notion of "do" (the action, subroutine), "wait"
+(the total time bewtween invocations), and "label" (the name given to the type
+of invocation). These can be specified at singleton object instantiation or
+later when you're wanting to invoke the action.
 
-## Configuration File Including
+For example, let's say you're scraping two different web hosts. You'd like to
+wait up to 2 seconds between each request for the first host and 3 seconds
+between each request for the second host.
 
-Any configuration file can "include" other files by including an "include"
-keyword as a direct sub-key from a selector. For example:
+    my $tda = Time::DoAfter->new;
 
-    +|gryphon|other:
-        database:
-            password: other
-        include: gryphon_settings.yaml
-
-This will result in the file "gryphon\_settings.yaml" being read in and merged
-if and only if the "+|gryphon|other" selector is active. Any settings in this
-included file with selectors that are active will be added even if they are
-not the "+|gryphon|other" selector. However, since the file will only be
-included if the "+|gryphon|other" selector is active, the selectors of the
-sub-file are irrelevant if the "+|gryphon|other" selector is inactive.
-
-Alternatively, you can opt to put "include" in the root namespace, which will
-mean the sub-file is always included.
-
-    +|gryphon|other:
-        database:
-            password: other
-    include: gryphon_settings.yaml
-
-### Optional Configuration File Including
-
-Normally, if you "include" a location that doesn't exist, you'll get an error.
-However, if you replace the "include" key word with "optional\_include", then
-the location will be included if it exists and silently bypassed if it doesn't
-exist.
-
-## Configuration File Finding
-
-When a file is included, it's searched for starting at the current directory
-of the program or application, as determined by [FindBin](https://metacpan.org/pod/FindBin). If the file is not
-found, it will be looked for one directory level above, and so on and so on,
-until it's either found or we get to the top directory level. This means that
-in a given application with several nested directories of varying depth and
-programs within each, you can use a single configuration file and not have to
-hard-code paths into each program.
-
-At any point, either in the `new()` constructor or as values to "include"
-keys, you can stipulate URLs. If any of the configuration returned from
-a URL includes an "include" key with a non-URL value, it will be assumed to be
-a filename of a local file.
-
-Any file can be either local or URL, and either YAML or JSON. The `new()`
-constructor will believe anything that has a URL schema (i.e. "https://") is
-a URL, and it will look at the file extension to determine if the file is
-YAML or JSON. (As in: .yaml, .yml, .js, .json)
-
-## Root Directory
-
-The very first local file found (whether as the inital configuration file or as
-the first local file found following a URL-based configuration) will determine
-the "root\_dir" setting that falls under the "config\_app" auto-generated
-configuration. What this means in practice is that if your application needs to
-know its own root directory, set your first local configuration file include
-to reference itself from the root directory of the application.
-
-For example, let's say you have a directory structure like this:
-
-    home
-        gryphon
-            app
-                conf
-                    settings.yaml
-                lib
-                    Module.pm
-                bin
-                    program.pl
-
-Let's say then that the "program.pl" program includes this:
-
-    my $conf = Config::App->new('conf/settings.yaml');
-
-The result of this is that the configuration file "settings.yaml" will get found
-and "root\_dir" will be set to "/home/gryphon/app", which can be access like so:
-
-    $conf->get( 'config_app', 'root_dir' );
-
-## Included Files
-
-All included files, including the initial file, are listed in an arrayref,
-which can be accessed like so:
-
-    $conf->get( 'config_app', 'includes' );
-
-This is mostly for debugging purposes, to know from where your configuration
-was derived.
+    $tda->do( 'host_1', 2, \&scrape_host_1 );
+    $tda->do( 'host_2', 3, \&scrape_host_2 );
 
 # METHODS
 
-The following are the supported methods of this module:
+The following are available methods:
 
 ## new
 
-The constructor will return an object that can be used to query and alter the
-derived cascaded configuration. By default, with no parameters passed, the
-constructor assumes the initial configuration file is "config/app.yaml".
+This will instantiate or return a singleton object, off which you can call
+`do` and do things and stuff.
 
-    # looks for initial conf file "config/app.yaml" at or above cwd
-    my $conf = Config::App->new;
+    my $tda = Time::DoAfter->new;
 
-You can stipulate an initial configuration file to the constructor:
+Alternatively, you can pass `new` a list comprising of up to 3 things multiple
+times over. Those 3 things are, in any order: label, wait, and do. Any of these
+can be left undefined.
 
-    # looks for initial conf file "settings/conf.json" at or above cwd
-    my $conf = Config::App->new('settings/conf.json');
+    my $tda1 = Time::DoAfter->new( 'label', [ 0.9, 2.3 ] );
+    my $tda2 = Time::DoAfter->new(
+        'label_a', 0.5, undef,
+        'label_b', undef, sub {},
+    );
 
-You can also alternatively set an enviornment variable that will identify the
-initial configuration file:
+These will setup defaults for when you call `do`.
 
-    # looks for initial conf file "conf/settings.yaml" at or above cwd
-    $ENV{CONFIGAPPINIT} = 'conf/settings.yaml';
-    my $conf = Config::App->new;
+## do
 
-### Singleton
+This will do things and stuff, after maybe waiting, of course. This method
+can accept 3 things, which are, in any order: label, wait, and do.
 
-The `new()` constructor assumes that you'll want to have the configuration
-object be a singleton, because within a single application, I assumed that it'd
-be silly to compile the settings more than once. However, if you really want
-a not-singleton behavior, pass any positive value as a second parameter to
-the constructor.
+    $tda->do( 'things', 2, \&do_things );
+    $tda->do( \&do_stuff, 'stuff', [ 0.5, 1.5 ] );
 
-    my $conf_0 = Config::App->new( 'file_0.yaml', 1 );
-    my $conf_1 = Config::App->new( 'file_1.yaml', 1 );
+If you don't specify some input to `do`, it'll attempt to do the right thing
+based on what you provided to `new`.
 
-## get
+## now
 
-This returns a configuration setting or block of settings from the merged/active
-application settings. To retrieve a setting of block, pass to get a list where
-each node of the list is the node of a configuration tree address. Given the
-following example YAML:
+Returns the current time (floating-point value) in seconds since the epoch.
 
-    default:
-        database:
-            dbname: answer
-            number: 42
+    my $current_time = $tda->now;
 
-To retrieve this setting, you would:
+## last
 
-    $conf->get( 'database', 'answer' );
+Returns the last time (floating-point value in seconds since the epoch) when
+the last "do" was done for a given label.
 
-If instead you made this call:
+    my $last_time = $tda->last('things');
 
-    my $db = $conf->get('database');
+## history
 
-You would expect `$db` to be:
+After calling `do` a few times, this library will build up a history of doing
+things. If you want to review that history, call `history`. It will return
+an arrayref of hashrefs, where the keys of each hashref are:
+label, do, wait, and time. (Time in this case is when that do was done.)
+You can also specify the number of most recent history events to return.
 
-    {
-        dbname => 'answer',
-        number => 42,
-    }
+    my $all_history    = $tda->history;
+    my $things_history = $tda->history('things');
+    my $last_5_things  = $tda->history( 'things', 5 );
 
-## put
+    my $last_thing      = pop @$last_5_things;
+    my $last_thing_when = $last_thing->{time};
 
-This method allows you to alter the application configuration at runtime. It
-expects that you provide a path to a node and the value that will replace that
-node's current value.
+# How Time Works
 
-    $conf->put( qw( database dbname new_db_name ) );
+If you specify a time to wait that's an integer or floating point, that value
+will get used for the wait calculation. If instead you provide an arrayref,
+the library expects it to contain two numbers (integer or floating point).
+The library will pick a random floating point number between these two values.
 
-## conf
-
-This method will return the entire derived cascaded configuration data set.
-But more interesting is that you can pass in data structures to alter the
-configuration.
-
-    my $full_conf_as_data_structure = $conf->conf;
-
-    my $new_full_conf_as_data_structure = $conf->conf({
-        change => { some => { conf => 1138 } }
-    });
-
-# LIBRARY DIRECTORY INJECTION
-
-By default, the call to use the library will result in the "lib" subdirectory
-from the found root directory being unshifted to @INC. You can also stipulate
-a directory alternative from "lib" in the use line.
-
-    use Config::App;        # add "root_dir/lib"  to @INC
-    use Config::App 'lib2'; # add "root_dir/lib2" to @INC
-
-To skip this behavior, do this:
-
-    use Config::App ();
+If you don't specify a wait, the library will assume a wait of zero.
 
 # DIRECT DEPENDENCIES
 
-[URI](https://metacpan.org/pod/URI), [LWP::UserAgent](https://metacpan.org/pod/LWP::UserAgent), [Carp](https://metacpan.org/pod/Carp), [FindBin](https://metacpan.org/pod/FindBin), [JSON::XS](https://metacpan.org/pod/JSON::XS), [YAML::XS](https://metacpan.org/pod/YAML::XS), [POSIX](https://metacpan.org/pod/POSIX).
+[Time::HiRes](https://metacpan.org/pod/Time::HiRes).
 
 # SEE ALSO
 
 You can look for additional information at:
 
-- [GitHub](https://github.com/gryphonshafer/Config-App)
-- [CPAN](http://search.cpan.org/dist/Config-App)
-- [MetaCPAN](https://metacpan.org/pod/Config::App)
-- [AnnoCPAN](http://annocpan.org/dist/Config-App)
-- [Travis CI](https://travis-ci.org/gryphonshafer/Config-App)
-- [Coveralls](https://coveralls.io/r/gryphonshafer/Config-App)
-- [CPANTS](http://cpants.cpanauthors.org/dist/Config-App)
-- [CPAN Testers](http://www.cpantesters.org/distro/G/Config-App.html)
+- [GitHub](https://github.com/gryphonshafer/Time-DoAfter)
+- [CPAN](http://search.cpan.org/dist/Time-DoAfter)
+- [MetaCPAN](https://metacpan.org/pod/Time::DoAfter)
+- [AnnoCPAN](http://annocpan.org/dist/Time-DoAfter)
+- [Travis CI](https://travis-ci.org/gryphonshafer/Time-DoAfter)
+- [Coveralls](https://coveralls.io/r/gryphonshafer/Time-DoAfter)
+- [CPANTS](http://cpants.cpanauthors.org/dist/Time-DoAfter)
+- [CPAN Testers](http://www.cpantesters.org/distro/T/Time-DoAfter.html)
 
 # AUTHOR
 
@@ -303,7 +169,7 @@ Gryphon Shafer <gryphon@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2015 by Gryphon Shafer.
+This software is copyright (c) 2016 by Gryphon Shafer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
