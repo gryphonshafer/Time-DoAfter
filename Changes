@@ -1,6 +1,8 @@
 Revision history for Time::DoAfter
 
 {{$NEXT}}
+
+1.03      2016-09-12 19:18:17-07:00 America/Los_Angeles
         - do() now returns total time it slept for
 
 1.02      2016-09-09 10:44:05-07:00 America/Los_Angeles
