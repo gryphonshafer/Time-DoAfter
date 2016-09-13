@@ -1,6 +1,7 @@
 Revision history for Time::DoAfter
 
 {{$NEXT}}
+        - do() now returns total time it slept for
 
 1.02      2016-09-09 10:44:05-07:00 America/Los_Angeles
         - Removed incorrectly included cover_db dir/files

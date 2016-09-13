@@ -4,7 +4,7 @@ Time::DoAfter - Wait before doing by label contoller singleton
 
 # VERSION
 
-version 1.02
+version 1.03
 
 [![Build Status](https://travis-ci.org/gryphonshafer/Time-DoAfter.svg)](https://travis-ci.org/gryphonshafer/Time-DoAfter)
 [![Coverage Status](https://coveralls.io/repos/gryphonshafer/Time-DoAfter/badge.png)](https://coveralls.io/r/gryphonshafer/Time-DoAfter)
@@ -26,6 +26,8 @@ version 1.02
     $tda0->do( sub {}, 0.5 );
     $tda0->do( 'label', sub {} );
     $tda0->do( 'label', sub {}, 0.5 );
+
+    my $total_wait = $tda1->do;
 
     my ( $time_since, $time_wait ) = $tda1->do( sub {} );
 
@@ -108,6 +110,9 @@ can accept 3 things, which are, in any order: label, wait, and do.
 
 If you don't specify some input to `do`, it'll attempt to do the right thing
 based on what you provided to `new`.
+
+This method will return a float indicating the sum time that `do` waited for
+the particular call.
 
 ## now
 

@@ -52,8 +52,9 @@ sub _input_handler {
 }
 
 sub do {
-    my $self = shift;
-    my $input = _input_handler(@_);
+    my $self       = shift;
+    my $input      = _input_handler(@_);
+    my $total_wait = 0;
 
     for my $label ( keys %$input ) {
         $input->{$label}{wait} //= $self->{$label}{wait} // 0;
@@ -71,7 +72,10 @@ sub do {
             }
 
             my $sleep = $wait - ( time - $self->{$label}{last} );
-            sleep($sleep) if ( $sleep > 0 );
+            if ( $sleep > 0 ) {
+                $total_wait += $sleep;
+                sleep($sleep);
+            }
         }
 
         $self->{$label}{last} = time;
@@ -86,6 +90,8 @@ sub do {
 
         $self->{$label}{do}->();
     }
+
+    return $total_wait;
 }
 
 sub now {
@@ -136,6 +142,8 @@ __END__
     $tda0->do( sub {}, 0.5 );
     $tda0->do( 'label', sub {} );
     $tda0->do( 'label', sub {}, 0.5 );
+
+    my $total_wait = $tda1->do;
 
     my ( $time_since, $time_wait ) = $tda1->do( sub {} );
 
@@ -218,6 +226,9 @@ can accept 3 things, which are, in any order: label, wait, and do.
 
 If you don't specify some input to C<do>, it'll attempt to do the right thing
 based on what you provided to C<new>.
+
+This method will return a float indicating the sum time that C<do> waited for
+the particular call.
 
 =head2 now
 
