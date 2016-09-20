@@ -1,6 +1,7 @@
 Revision history for Time::DoAfter
 
 {{$NEXT}}
+        - last() is now also a setter (was just a getter)
 
 1.03      2016-09-12 19:18:17-07:00 America/Los_Angeles
         - do() now returns total time it slept for

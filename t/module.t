@@ -41,6 +41,8 @@ is( @$history, 2, 'label history size' );
 
 ok( $obj[0]->last, '$object->last' );
 ok( $obj[0]->last('label1'), '$object->last("label")' );
+ok( $obj[0]->last( 'label1', 1138 ), '$object->last( "label", time )' );
+is( $obj[0]->last('label1'), 1138, '$object->last("label") # new time' );
 
 ok( $obj[0]->now, '$object->now' );
 

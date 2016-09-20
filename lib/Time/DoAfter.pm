@@ -99,8 +99,12 @@ sub now {
 }
 
 sub last {
-    my ( $self, $label ) = @_;
-    return ( defined $label ) ? $self->{$label}{last} : $self->history( undef, 1 )->[0]{time};
+    my ( $self, $label, $time ) = @_;
+
+    my $value_ref = ( defined $label ) ? \$self->{$label}{last} : \$self->history( undef, 1 )->[0]{time};
+    $$value_ref = $time if ( defined $time );
+
+    return $$value_ref;
 }
 
 sub history {
@@ -147,8 +151,9 @@ __END__
 
     my ( $time_since, $time_wait ) = $tda1->do( sub {} );
 
-    my $current_time = $tda0->now;
-    my $last_time    = $tda0->last('label');
+    my $current_time  = $tda0->now;
+    my $last_time     = $tda0->last('label');
+    my $new_last_time = $tda0->last( 'label', time );
 
     my $all_history   = $tda0->history;
     my $label_history = $tda0->history('label');
@@ -242,6 +247,11 @@ Returns the last time (floating-point value in seconds since the epoch) when
 the last "do" was done for a given label.
 
     my $last_time = $tda->last('things');
+
+C<last> can also act as a setter. If you pass in a time value, it will set the
+last time of the label to that time.
+
+    $tda->last( 'things', time );
 
 =head2 history
 
