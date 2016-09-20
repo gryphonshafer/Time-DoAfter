@@ -4,7 +4,7 @@ Time::DoAfter - Wait before doing by label contoller singleton
 
 # VERSION
 
-version 1.03
+version 1.04
 
 [![Build Status](https://travis-ci.org/gryphonshafer/Time-DoAfter.svg)](https://travis-ci.org/gryphonshafer/Time-DoAfter)
 [![Coverage Status](https://coveralls.io/repos/gryphonshafer/Time-DoAfter/badge.png)](https://coveralls.io/r/gryphonshafer/Time-DoAfter)
@@ -31,12 +31,19 @@ version 1.03
 
     my ( $time_since, $time_wait ) = $tda1->do( sub {} );
 
-    my $current_time = $tda0->now;
-    my $last_time    = $tda0->last('label');
+    my $current_time   = $tda0->now;
+    my $last_time      = $tda0->last('label');
+    my $new_last_time  = $tda0->last( 'label', time );
 
-    my $all_history   = $tda0->history;
-    my $label_history = $tda0->history('label');
-    my $last_5_label  = $tda0->history( 'label', 5 );
+    my $all_history    = $tda0->history;
+    my $label_history  = $tda0->history('label');
+    my $last_5_label   = $tda0->history( 'label', 5 );
+
+    my $label_sub      = $tda0->sub('label');
+    my $new_label_sub  = $tda0->sub( 'label', sub {} );
+
+    my $label_wait     = $tda0->wait('label');
+    my $new_label_wait = $tda0->wait( 'label', [ 1.3, 2.1 ] );
 
 # DESCRIPTION
 
@@ -127,6 +134,11 @@ the last "do" was done for a given label.
 
     my $last_time = $tda->last('things');
 
+`last` can also act as a setter. If you pass in a time value, it will set the
+last time of the label to that time.
+
+    $tda->last( 'things', time );
+
 ## history
 
 After calling `do` a few times, this library will build up a history of doing
@@ -141,6 +153,20 @@ You can also specify the number of most recent history events to return.
 
     my $last_thing      = pop @$last_5_things;
     my $last_thing_when = $last_thing->{time};
+
+## sub
+
+Gets or sets the subroutine reference for a label's do action.
+
+    my $label_sub     = $tda0->sub('label');
+    my $new_label_sub = $tda0->sub( 'label', sub {} );
+
+## wait
+
+Gets or sets the wait time (explicit value or arrayref of range) for a label.
+
+    my $label_wait     = $tda0->wait('label');
+    my $new_label_wait = $tda0->wait( 'label', [ 1.3, 2.1 ] );
 
 # How Time Works
 
