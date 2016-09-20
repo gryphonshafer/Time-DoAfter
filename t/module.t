@@ -55,4 +55,11 @@ is_deeply( $obj[0]->wait('label4'), [ 2, 3 ], '$object->wait("label")' );
 lives_ok( sub { $obj[0]->wait( 'label4', [ 5, 7 ] ) }, '$object->wait( "label", $new_wait )' );
 is_deeply( $obj[0]->wait('label4'), [ 5, 7 ], '$object->wait("label") saved' );
 
+lives_ok( sub { $obj[0]->wait_adjust( 'label4', 3 ) }, '$object->wait_adjust( "label", 2 )' );
+is_deeply( $obj[0]->wait('label4'), [ 8, 10 ], '$object->wait("label") changed OK' );
+lives_ok( sub { $obj[0]->wait_adjust( 'label4', -4 ) }, '$object->wait_adjust( "label", -4 )' );
+is_deeply( $obj[0]->wait('label4'), [ 4, 6 ], '$object->wait("label") changed OK again' );
+lives_ok( sub { $obj[0]->wait_adjust( 'label3', 3 ) }, '$object->wait_adjust( "simple", 3 )' );
+is_deeply( $obj[0]->wait('label3'), 6, '$object->wait("simple") changed OK' );
+
 done_testing;

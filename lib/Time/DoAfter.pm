@@ -140,6 +140,20 @@ sub wait {
     return $$value_ref;
 }
 
+sub wait_adjust {
+    my ( $self, $label, $wait_adjust ) = @_;
+
+    my $value_ref = ( defined $label ) ? \$self->{$label}{wait} : \$self->history( undef, 1 )->[0]{wait};
+    if ( ref $$value_ref eq 'ARRAY' ) {
+        $_ += $wait_adjust for (@$$value_ref);
+    }
+    else {
+        $$value_ref += $wait_adjust;
+    }
+
+    return $$value_ref;
+}
+
 1;
 __END__
 =pod
@@ -187,6 +201,8 @@ __END__
 
     my $label_wait     = $tda0->wait('label');
     my $new_label_wait = $tda0->wait( 'label', [ 1.3, 2.1 ] );
+
+    $tda0->wait_adjust( 'label', 2 );
 
 =head1 DESCRIPTION
 
@@ -301,15 +317,28 @@ You can also specify the number of most recent history events to return.
 
 Gets or sets the subroutine reference for a label's do action.
 
-    my $label_sub     = $tda0->sub('label');
-    my $new_label_sub = $tda0->sub( 'label', sub {} );
+    my $label_sub     = $tda->sub('label');
+    my $new_label_sub = $tda->sub( 'label', sub {} );
 
 =head2 wait
 
 Gets or sets the wait time (explicit value or arrayref of range) for a label.
 
-    my $label_wait     = $tda0->wait('label');
-    my $new_label_wait = $tda0->wait( 'label', [ 1.3, 2.1 ] );
+    my $label_wait     = $tda->wait('label');
+    my $new_label_wait = $tda->wait( 'label', [ 1.3, 2.1 ] );
+
+=head2 wait_adjust
+
+This method lets you adjust the wait for a given label, adding to or subtracting
+from the wait setting.
+
+    $tda->wait( 'simple', 5 );         # simple now has a wait of 5 seconds
+    $tda->wait_adjust( 'simple', 2 );  # simple now has a wait of 7 seconds
+    $tda->wait_adjust( 'simple', -1 ); # simple now has a wait of 6 seconds
+
+    $tda->wait( 'range', [ 1, 2 ] );  # range now has a wait of 1 to 2 seconds
+    $tda->wait_adjust( 'range', 2 );  # range now has a wait of 3 to 5 seconds
+    $tda->wait_adjust( 'range', -1 ); # range now has a wait of 2 to 4 seconds
 
 =head1 How Time Works
 
