@@ -115,7 +115,7 @@ sub last {
 sub history {
     my ( $self, $label, $last ) = @_;
 
-    my $history = $self->{history};
+    my $history = $self->{history} || [];
     $history = [ grep { $_->{label} eq $label } @$history ] if ($label);
     $history = [ grep { defined } @$history[ @$history - $last - 1, @$history - 1 ] ] if ( defined $last );
 

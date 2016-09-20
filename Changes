@@ -1,6 +1,7 @@
 Revision history for Time::DoAfter
 
 {{$NEXT}}
+        - Fix bug in history()
 
 1.05      2016-09-20 09:01:07-07:00 America/Los_Angeles
         - Added wait_adjust() method
