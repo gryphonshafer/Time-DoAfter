@@ -42,13 +42,17 @@ is( @$history, 2, 'label history size' );
 ok( $obj[0]->last, '$object->last' );
 ok( $obj[0]->last('label1'), '$object->last("label")' );
 ok( $obj[0]->last( 'label1', 1138 ), '$object->last( "label", time )' );
-is( $obj[0]->last('label1'), 1138, '$object->last("label") # new time' );
+is( $obj[0]->last('label1'), 1138, '$object->last("label") new time' );
 
 ok( $obj[0]->now, '$object->now' );
 
 my $sub = sub {};
 isnt( $obj[0]->sub('label1'), $sub, '$object->sub("label")' );
 lives_ok( sub { $obj[0]->sub( 'label1', $sub ) }, '$object->sub( "label", sub {} )' );
-is( $obj[0]->sub('label1'), $sub, '$object->sub("label")' );
+is( $obj[0]->sub('label1'), $sub, '$object->sub("label") saved' );
+
+is_deeply( $obj[0]->wait('label4'), [ 2, 3 ], '$object->wait("label")' );
+lives_ok( sub { $obj[0]->wait( 'label4', [ 5, 7 ] ) }, '$object->wait( "label", $new_wait )' );
+is_deeply( $obj[0]->wait('label4'), [ 5, 7 ], '$object->wait("label") saved' );
 
 done_testing;

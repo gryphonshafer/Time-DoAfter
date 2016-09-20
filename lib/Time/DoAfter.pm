@@ -42,7 +42,12 @@ sub _input_handler {
     my $singleton;
 
     sub new {
-        return $singleton if ($singleton);
+        if ($singleton) {
+            my $input = _input_handler(@_);
+            $singleton->{$_} = $input->{$_} for ( keys %$input );
+            return $singleton;
+        }
+
         shift;
 
         my $self = bless( _input_handler(@_), __PACKAGE__ );
@@ -126,6 +131,15 @@ sub sub {
     return $$value_ref;
 }
 
+sub wait {
+    my ( $self, $label, $wait ) = @_;
+
+    my $value_ref = ( defined $label ) ? \$self->{$label}{wait} : \$self->history( undef, 1 )->[0]{wait};
+    $$value_ref = $wait if ( defined $wait );
+
+    return $$value_ref;
+}
+
 1;
 __END__
 =pod
@@ -160,16 +174,19 @@ __END__
 
     my ( $time_since, $time_wait ) = $tda1->do( sub {} );
 
-    my $current_time  = $tda0->now;
-    my $last_time     = $tda0->last('label');
-    my $new_last_time = $tda0->last( 'label', time );
+    my $current_time   = $tda0->now;
+    my $last_time      = $tda0->last('label');
+    my $new_last_time  = $tda0->last( 'label', time );
 
-    my $all_history   = $tda0->history;
-    my $label_history = $tda0->history('label');
-    my $last_5_label  = $tda0->history( 'label', 5 );
+    my $all_history    = $tda0->history;
+    my $label_history  = $tda0->history('label');
+    my $last_5_label   = $tda0->history( 'label', 5 );
 
-    my $label_sub     = $tda0->sub('label');
-    my $new_label_sub = $tda0->sub( 'label', sub {} );
+    my $label_sub      = $tda0->sub('label');
+    my $new_label_sub  = $tda0->sub( 'label', sub {} );
+
+    my $label_wait     = $tda0->wait('label');
+    my $new_label_wait = $tda0->wait( 'label', [ 1.3, 2.1 ] );
 
 =head1 DESCRIPTION
 
@@ -286,6 +303,13 @@ Gets or sets the subroutine reference for a label's do action.
 
     my $label_sub     = $tda0->sub('label');
     my $new_label_sub = $tda0->sub( 'label', sub {} );
+
+=head2 wait
+
+Gets or sets the wait time (explicit value or arrayref of range) for a label.
+
+    my $label_wait     = $tda0->wait('label');
+    my $new_label_wait = $tda0->wait( 'label', [ 1.3, 2.1 ] );
 
 =head1 How Time Works
 
