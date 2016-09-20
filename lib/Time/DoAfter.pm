@@ -117,6 +117,15 @@ sub history {
     return $history;
 }
 
+sub sub {
+    my ( $self, $label, $sub ) = @_;
+
+    my $value_ref = ( defined $label ) ? \$self->{$label}{do} : \$self->history( undef, 1 )->[0]{do};
+    $$value_ref = $sub if ( ref $sub eq 'CODE' );
+
+    return $$value_ref;
+}
+
 1;
 __END__
 =pod
@@ -158,6 +167,9 @@ __END__
     my $all_history   = $tda0->history;
     my $label_history = $tda0->history('label');
     my $last_5_label  = $tda0->history( 'label', 5 );
+
+    my $label_sub     = $tda0->sub('label');
+    my $new_label_sub = $tda0->sub( 'label', sub {} );
 
 =head1 DESCRIPTION
 
@@ -267,6 +279,13 @@ You can also specify the number of most recent history events to return.
 
     my $last_thing      = pop @$last_5_things;
     my $last_thing_when = $last_thing->{time};
+
+=head2 sub
+
+Gets or sets the subroutine reference for a label's do action.
+
+    my $label_sub     = $tda0->sub('label');
+    my $new_label_sub = $tda0->sub( 'label', sub {} );
 
 =head1 How Time Works
 

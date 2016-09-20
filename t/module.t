@@ -46,4 +46,9 @@ is( $obj[0]->last('label1'), 1138, '$object->last("label") # new time' );
 
 ok( $obj[0]->now, '$object->now' );
 
+my $sub = sub {};
+isnt( $obj[0]->sub('label1'), $sub, '$object->sub("label")' );
+lives_ok( sub { $obj[0]->sub( 'label1', $sub ) }, '$object->sub( "label", sub {} )' );
+is( $obj[0]->sub('label1'), $sub, '$object->sub("label")' );
+
 done_testing;
