@@ -1,6 +1,7 @@
 package Time::DoAfter;
 # ABSTRACT: Wait before doing by label contoller singleton
 
+use 5.010;
 use strict;
 use warnings;
 
