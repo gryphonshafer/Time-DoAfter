@@ -1,6 +1,7 @@
 Revision history for Time::DoAfter
 
 {{$NEXT}}
+        - Adding Perl versions to test; annual general update for 2018
 
 1.06      2016-09-20 12:05:47-07:00 America/Los_Angeles
         - Fix bug in history()

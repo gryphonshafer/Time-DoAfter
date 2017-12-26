@@ -4,7 +4,7 @@ Time::DoAfter - Wait before doing by label contoller singleton
 
 # VERSION
 
-version 1.06
+version 1.07
 
 [![Build Status](https://travis-ci.org/gryphonshafer/Time-DoAfter.svg)](https://travis-ci.org/gryphonshafer/Time-DoAfter)
 [![Coverage Status](https://coveralls.io/repos/gryphonshafer/Time-DoAfter/badge.png)](https://coveralls.io/r/gryphonshafer/Time-DoAfter)
@@ -215,7 +215,7 @@ Gryphon Shafer <gryphon@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2016 by Gryphon Shafer.
+This software is copyright (c) 2018 by Gryphon Shafer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
