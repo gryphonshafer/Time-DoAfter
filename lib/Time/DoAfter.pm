@@ -360,9 +360,7 @@ You can look for additional information at:
 
 =for :list
 * L<GitHub|https://github.com/gryphonshafer/Time-DoAfter>
-* L<CPAN|http://search.cpan.org/dist/Time-DoAfter>
 * L<MetaCPAN|https://metacpan.org/pod/Time::DoAfter>
-* L<AnnoCPAN|http://annocpan.org/dist/Time-DoAfter>
 * L<Travis CI|https://travis-ci.org/gryphonshafer/Time-DoAfter>
 * L<Coveralls|https://coveralls.io/r/gryphonshafer/Time-DoAfter>
 * L<CPANTS|http://cpants.cpanauthors.org/dist/Time-DoAfter>
