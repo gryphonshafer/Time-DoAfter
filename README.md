@@ -6,8 +6,8 @@ Time::DoAfter - Wait before doing by label contoller singleton
 
 version 1.07
 
-[![Build Status](https://travis-ci.org/gryphonshafer/Time-DoAfter.svg)](https://travis-ci.org/gryphonshafer/Time-DoAfter)
-[![Coverage Status](https://coveralls.io/repos/gryphonshafer/Time-DoAfter/badge.png)](https://coveralls.io/r/gryphonshafer/Time-DoAfter)
+[![build](https://github.com/gryphonshafer/Time-DoAfter/workflows/build/badge.svg)](https://github.com/gryphonshafer/Time-DoAfter/actions?query=workflow%3Abuild)
+[![codecov](https://codecov.io/gh/gryphonshafer/Time-DoAfter/graph/badge.svg)](https://codecov.io/gh/gryphonshafer/Time-DoAfter)
 
 # SYNOPSIS
 
@@ -194,18 +194,16 @@ If you don't specify a wait, the library will assume a wait of zero.
 
 # DIRECT DEPENDENCIES
 
-[Time::HiRes](https://metacpan.org/pod/Time::HiRes).
+[Time::HiRes](https://metacpan.org/pod/Time%3A%3AHiRes).
 
 # SEE ALSO
 
 You can look for additional information at:
 
 - [GitHub](https://github.com/gryphonshafer/Time-DoAfter)
-- [CPAN](http://search.cpan.org/dist/Time-DoAfter)
 - [MetaCPAN](https://metacpan.org/pod/Time::DoAfter)
-- [AnnoCPAN](http://annocpan.org/dist/Time-DoAfter)
-- [Travis CI](https://travis-ci.org/gryphonshafer/Time-DoAfter)
-- [Coveralls](https://coveralls.io/r/gryphonshafer/Time-DoAfter)
+- [GitHub Actions](https://github.com/gryphonshafer/Time-DoAfter/actions)
+- [Codecov](https://codecov.io/gh/gryphonshafer/Time-DoAfter)
 - [CPANTS](http://cpants.cpanauthors.org/dist/Time-DoAfter)
 - [CPAN Testers](http://www.cpantesters.org/distro/T/Time-DoAfter.html)
 
@@ -215,7 +213,7 @@ Gryphon Shafer <gryphon@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2018 by Gryphon Shafer.
+This software is copyright (c) 2021 by Gryphon Shafer.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
