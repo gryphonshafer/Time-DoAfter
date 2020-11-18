@@ -162,7 +162,7 @@ __END__
 =begin :badges
 
 =for markdown
-[![build](https://github.com/gryphonshafer/Time-DoAfter/workflows/build/badge.svg)](https://github.com/gryphonshafer/Time-DoAfter/actions?query=workflow%3Abuild)
+[![test](https://github.com/gryphonshafer/Time-DoAfter/workflows/test/badge.svg)](https://github.com/gryphonshafer/Time-DoAfter/actions?query=workflow%3Atest)
 [![codecov](https://codecov.io/gh/gryphonshafer/Time-DoAfter/graph/badge.svg)](https://codecov.io/gh/gryphonshafer/Time-DoAfter)
 
 =end :badges
