@@ -4,7 +4,7 @@ Time::DoAfter - Wait before doing by label contoller singleton
 
 # VERSION
 
-version 1.07
+version 1.08
 
 [![test](https://github.com/gryphonshafer/Time-DoAfter/workflows/test/badge.svg)](https://github.com/gryphonshafer/Time-DoAfter/actions?query=workflow%3Atest)
 [![codecov](https://codecov.io/gh/gryphonshafer/Time-DoAfter/graph/badge.svg)](https://codecov.io/gh/gryphonshafer/Time-DoAfter)
@@ -213,7 +213,7 @@ Gryphon Shafer <gryphon@cpan.org>
 
 # COPYRIGHT AND LICENSE
 
-This software is Copyright (c) 2016-2021 by Gryphon Shafer.
+This software is Copyright (c) 2016-2050 by Gryphon Shafer.
 
 This is free software, licensed under:
 
