@@ -1,6 +1,7 @@
 Revision history for Time::DoAfter
 
 {{$NEXT}}
+        - Add security policy as per CPANSec recommendation
 
 1.08      2022-03-19 17:52:59-07:00 America/Los_Angeles
         - Minor documentation update
